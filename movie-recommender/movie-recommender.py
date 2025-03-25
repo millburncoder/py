@@ -23,10 +23,10 @@ st.markdown("""
 def load_data():
     try:
         # Try loading the data
-        file_path = os.path.join(os.path.dirname(__file__),'data', 'movies.csv')
+        file_path = os.path.join(os.path.dirname(__file__), 'data', 'movies.csv')
         movies = pd.read_csv(file_path)
 
-        file_path_ratings = os.path.join(os.path.dirname(__file__),'data', 'ratings.csv')
+        file_path_ratings = os.path.join(os.path.dirname(__file__), 'data', 'ratings.csv')
         ratings = pd.read_csv(file_path_ratings)
 
         data = pd.merge(ratings, movies, on="movieId")
@@ -51,28 +51,29 @@ movie_similarity = cosine_similarity(user_item_matrix.T)
 similarity_df = pd.DataFrame(movie_similarity, index=user_item_matrix.columns, columns=user_item_matrix.columns)
 
 # Recommendation function
-def recommend_movies(movie_title, movies_df, top_n=5):
+def recommend_movies(movie_title, similarity_df, movies_df, top_n=5):
     try:
         st.write(f"Finding recommendations for: {movie_title}")
+
         # Ensure that the movie exists in the dataset
         if movie_title not in movies_df['title'].values:
             st.error(f"Movie '{movie_title}' not found in the dataset.")
             return []
 
-        movie_index = movies_df[movies_df['title'] == movie_title].index[0]
+        # Get the index of the movie in the similarity matrix
+        movie_index = similarity_df.columns.get_loc(movie_title)
         st.write(f"Movie found at index: {movie_index}")
 
-        # Calculate cosine similarity
-        cosine_sim = cosine_similarity(movies_df['features'].values)
-        st.write("Cosine similarity matrix computed.")
+        # Get the similarity scores for the selected movie
+        similarity_scores = similarity_df.iloc[movie_index]
 
-        similar_movies = list(enumerate(cosine_sim[movie_index]))
-        similar_movies = sorted(similar_movies, key=lambda x: x[1], reverse=True)
+        # Sort the movies based on similarity scores
+        similar_movies = similarity_scores.sort_values(ascending=False)
 
         st.write(f"Found {len(similar_movies)} similar movies.")
 
         # Return top N recommendations
-        top_similar_movies = [movies_df.iloc[i[0]]['title'] for i in similar_movies[1:top_n + 1]]
+        top_similar_movies = similar_movies.index[1:top_n + 1]  # Exclude the movie itself (first entry)
         return top_similar_movies
 
     except Exception as e:
@@ -88,8 +89,8 @@ movie_title = st.selectbox("Choose a movie:", options=list(movies['title']))
 
 if st.button("Recommend"):
     try:
-        recommendations = recommend_movies(movie_title, similarity_df)
-        st.write("Movies similar to **{}**:".format(movie_title))
+        recommendations = recommend_movies(movie_title, similarity_df, movies)
+        st.write(f"Movies similar to **{movie_title}**:")
         for i, rec in enumerate(recommendations, 1):
             st.write(f"{i}. {rec}")
     except KeyError:
