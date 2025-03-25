@@ -1,0 +1,10 @@
+streamlit
+transformers
+torch
+textblob
+pydantic
+pandas
+numpy
+scikit-learn
+pyship
+matplotlib
