@@ -13,8 +13,8 @@ logging.basicConfig(level=logging.INFO)
 def load_data():
     try:
         # Try loading the data
-        movies = pd.read_csv("./data/movies.csv")
-        ratings = pd.read_csv("./data/ratings.csv")
+        movies = pd.read_csv("../data/movies.csv")
+        ratings = pd.read_csv("../data/ratings.csv")
         data = pd.merge(ratings, movies, on="movieId")
     except FileNotFoundError:
         st.error("File not found. Please make sure 'movies.csv' is in the 'data' folder.")
