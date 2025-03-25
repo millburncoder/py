@@ -9,6 +9,15 @@ from sklearn.metrics.pairwise import cosine_similarity
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
+# Apply custom CSS to change the font
+st.markdown("""
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 import os
 st.write("Current working directory:", os.getcwd())
 
