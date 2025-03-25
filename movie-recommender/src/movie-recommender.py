@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import logging
+import os
 
 from pandas.io.formats.format import return_docstring
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,8 +14,10 @@ logging.basicConfig(level=logging.INFO)
 def load_data():
     try:
         # Try loading the data
-        movies = pd.read_csv("../data/movies.csv")
-        ratings = pd.read_csv("../data/ratings.csv")
+        file_path = os.path.join('.', 'data', 'movies.csv')
+        movies = pd.read_csv(file_path)
+        file_path_ratings = os.path.join('.', 'data', 'ratings.csv')
+        ratings = pd.read_csv(file_path_ratings)
         data = pd.merge(ratings, movies, on="movieId")
     except FileNotFoundError:
         st.error("File not found. Please make sure 'movies.csv' is in the 'data' folder.")
