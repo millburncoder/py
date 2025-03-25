@@ -17,10 +17,14 @@ st.write("Current working directory:", os.getcwd())
 def load_data():
     try:
         # Try loading the data
-        file_path = os.path.join('data', 'movies.csv')
+        file_path = os.path.join(os.path.dirname(__file__),'data', 'movies.csv')
+        st.write(f"Resolved file path: {file_path}")
         movies = pd.read_csv(file_path)
-        file_path_ratings = os.path.join('data', 'ratings.csv')
+
+        file_path_ratings = os.path.join(os.path.dirname(__file__),'data', 'ratings.csv')
+        st.write(f"Resolved file path: {file_path_ratings}")
         ratings = pd.read_csv(file_path_ratings)
+
         data = pd.merge(ratings, movies, on="movieId")
     except FileNotFoundError:
         st.error("File not found. Please make sure 'movies.csv' is in the 'data' folder.")
