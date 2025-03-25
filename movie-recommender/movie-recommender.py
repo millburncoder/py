@@ -10,7 +10,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 logging.basicConfig(level=logging.INFO)
 
 import os
-print("Current working directory:", os.getcwd())
+st.write("Current working directory:", os.getcwd())
 
 # Load data
 @st.cache_data
