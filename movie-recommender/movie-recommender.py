@@ -18,20 +18,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-import os
-st.write("Current working directory:", os.getcwd())
-
 # Load data
 @st.cache_data
 def load_data():
     try:
         # Try loading the data
         file_path = os.path.join(os.path.dirname(__file__),'data', 'movies.csv')
-        st.write(f"Resolved file path: {file_path}")
         movies = pd.read_csv(file_path)
 
         file_path_ratings = os.path.join(os.path.dirname(__file__),'data', 'ratings.csv')
-        st.write(f"Resolved file path: {file_path_ratings}")
         ratings = pd.read_csv(file_path_ratings)
 
         data = pd.merge(ratings, movies, on="movieId")
@@ -56,9 +51,33 @@ movie_similarity = cosine_similarity(user_item_matrix.T)
 similarity_df = pd.DataFrame(movie_similarity, index=user_item_matrix.columns, columns=user_item_matrix.columns)
 
 # Recommendation function
-def recommend_movies(movie_title, similarity_df, top_n=5):
-    similar_movies = similarity_df[movie_title].sort_values(ascending=False)[1:top_n+1]
-    return similar_movies.index.tolist()
+def recommend_movies(movie_title, movies_df, top_n=5):
+    try:
+        st.write(f"Finding recommendations for: {movie_title}")
+        # Ensure that the movie exists in the dataset
+        if movie_title not in movies_df['title'].values:
+            st.error(f"Movie '{movie_title}' not found in the dataset.")
+            return []
+
+        movie_index = movies_df[movies_df['title'] == movie_title].index[0]
+        st.write(f"Movie found at index: {movie_index}")
+
+        # Calculate cosine similarity
+        cosine_sim = cosine_similarity(movies_df['features'].values)
+        st.write("Cosine similarity matrix computed.")
+
+        similar_movies = list(enumerate(cosine_sim[movie_index]))
+        similar_movies = sorted(similar_movies, key=lambda x: x[1], reverse=True)
+
+        st.write(f"Found {len(similar_movies)} similar movies.")
+
+        # Return top N recommendations
+        top_similar_movies = [movies_df.iloc[i[0]]['title'] for i in similar_movies[1:top_n + 1]]
+        return top_similar_movies
+
+    except Exception as e:
+        st.error(f"Error during movie recommendation: {e}")
+        return []
 
 # Streamlit App
 st.title("🎥 Personalized Movie Recommendation System")
